@@ -5,17 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="LARABRENNT portfolio">
   <title>LARABRENNT</title>
+
   <style>
     :root {
       --pad: clamp(16px, 2vw, 30px);
-      --header-height: 58px;
       --ink: #111;
       --paper: #fff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
-    html, body {
+    html,
+    body {
       margin: 0;
       min-height: 100%;
       background: var(--paper);
@@ -27,41 +30,6 @@
       font-family: Arial, Helvetica, sans-serif;
       cursor: pointer;
     }
-
-    .site-header {
-      position: fixed;
-      z-index: 10;
-      inset: 0 0 auto;
-      height: var(--header-height);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 var(--pad);
-      pointer-events: none;
-      mix-blend-mode: difference;
-      color: #fff;
-    }
-
-    .wordmark,
-    .contact {
-      pointer-events: auto;
-      color: inherit;
-      font-size: 12px;
-      font-weight: 400;
-      line-height: 1;
-      letter-spacing: -0.035em;
-      text-decoration: none;
-    }
-
-    .wordmark { font-size: clamp(13px, 1.25vw, 18px); }
-
-    .contact {
-      border-bottom: 1px solid currentColor;
-      padding-bottom: 2px;
-      transition: opacity 160ms ease;
-    }
-
-    .contact:hover { opacity: .55; }
 
     .gallery {
       position: relative;
@@ -78,7 +46,9 @@
       background: var(--paper);
     }
 
-    .slide.is-active { display: block; }
+    .slide.is-active {
+      display: block;
+    }
 
     .slide img {
       display: block;
@@ -91,29 +61,36 @@
     .contact-slide {
       align-items: center;
       justify-content: center;
-      padding: calc(var(--header-height) + 24px) var(--pad) 40px;
+      padding: var(--pad);
       cursor: default;
     }
 
-    .contact-slide.is-active { display: flex; }
+    .contact-slide.is-active {
+      display: flex;
+    }
 
     .contact-details {
       max-width: 440px;
       padding: 24px;
       text-align: center;
-      font-size: clamp(16px, 1.65vw, 24px);
-      line-height: 1.25;
-      letter-spacing: -0.045em;
+      font-size: clamp(8px, 0.825vw, 12px);
+      line-height: 1.3;
+      letter-spacing: -0.025em;
     }
 
-    .contact-details p { margin: 0 0 12px; }
-    .contact-details p:last-child { margin-bottom: 0; }
+    .contact-details p {
+      margin: 0 0 8px;
+    }
+
+    .contact-details p:last-child {
+      margin-bottom: 0;
+    }
 
     .contact-details a {
       color: inherit;
       text-decoration: none;
       border-bottom: 1px solid currentColor;
-      padding-bottom: 2px;
+      padding-bottom: 1px;
     }
 
     .hint {
@@ -129,63 +106,94 @@
     }
 
     @media (max-width: 600px) {
-      :root { --header-height: 52px; }
-      .hint { bottom: 14px; }
+      .hint {
+        bottom: 14px;
+      }
     }
   </style>
 </head>
+
 <body>
-  <header class="site-header">
-    <a class="wordmark" href="#top" aria-label="LARABRENNT home">LARABRENNT</a>
-    <!-- Ersetze die E-Mail-Adresse durch deine eigene. -->
-    <a class="contact" href="mailto:hello@larabrennt.com">contact</a>
-  </header>
+  <main class="gallery" aria-label="Portfolio image carousel" tabindex="0">
 
-  <main class="gallery" id="top" aria-label="Portfolio image carousel" tabindex="0">
-    <figure class="slide is-active"><img src="portfolio_Page_1.jpg" alt="Portfolio work 1"></figure>
-    <figure class="slide"><img src="portfolio_Page_2-2.jpg" alt="Portfolio work 2"></figure>
-    <figure class="slide"><img src="portfolio_Page_3-3.jpg" alt="Portfolio work 3"></figure>
-    <figure class="slide"><img src="portfolio_Page_4-4.jpg" alt="Portfolio work 4"></figure>
-    <figure class="slide"><img src="portfolio_Page_5-5.jpg" alt="Portfolio work 5"></figure>
-    <figure class="slide"><img src="portfolio_Page_6-6.jpg" alt="Portfolio work 6"></figure>
-    <figure class="slide"><img src="portfolio_Page_7-7.jpg" alt="Portfolio work 7"></figure>
+    <figure class="slide is-active">
+      <img src="portfolio_Page_1.jpg" alt="Portfolio work 1">
+    </figure>
 
-    <!-- Leere Schlussfolie: Hier deine Kontaktdaten eintragen. -->
+    <figure class="slide">
+      <img src="portfolio_Page_2-2.jpg" alt="Portfolio work 2">
+    </figure>
+
+    <figure class="slide">
+      <img src="portfolio_Page_3-3.jpg" alt="Portfolio work 3">
+    </figure>
+
+    <figure class="slide">
+      <img src="portfolio_Page_4-4.jpg" alt="Portfolio work 4">
+    </figure>
+
+    <figure class="slide">
+      <img src="portfolio_Page_5-5.jpg" alt="Portfolio work 5">
+    </figure>
+
+    <figure class="slide">
+      <img src="portfolio_Page_6-6.jpg" alt="Portfolio work 6">
+    </figure>
+
+    <figure class="slide">
+      <img src="portfolio_Page_7-7.jpg" alt="Portfolio work 7">
+    </figure>
+
+    <!-- Letzte, leere Folie: Kontaktdaten hier ersetzen -->
     <section class="slide contact-slide" aria-label="Contact">
       <div class="contact-details">
-        <p>LARABRENNT</p>
-        <p><a href="mailto:larabrenner@posteo.com">larabrenner@posteo.com</a></p>
-        <p></p>
+        <p>YOUR NAME</p>
+        <p>
+          <a href="mailto:hello@larabrennt.com">
+            hello@larabrennt.com
+          </a>
+        </p>
+        <p>Instagram / LinkedIn / Location</p>
       </div>
     </section>
+
   </main>
 
   <span class="hint" aria-hidden="true">click to browse</span>
 
   <script>
-    const slides = [...document.querySelectorAll('.slide')];
-    const gallery = document.querySelector('.gallery');
-    const hint = document.querySelector('.hint');
+    const slides = [...document.querySelectorAll(".slide")];
+    const gallery = document.querySelector(".gallery");
+    const hint = document.querySelector(".hint");
+
     let index = 0;
 
     function show(next) {
-      slides[index].classList.remove('is-active');
+      slides[index].classList.remove("is-active");
       index = (next + slides.length) % slides.length;
-      slides[index].classList.add('is-active');
-      hint.style.opacity = '0';
+      slides[index].classList.add("is-active");
+      hint.style.opacity = "0";
     }
 
-    gallery.addEventListener('click', (event) => {
-      if (event.target.closest('a')) return;
-      show(event.clientX < window.innerWidth / 2 ? index - 1 : index + 1);
+    gallery.addEventListener("click", (event) => {
+      if (event.target.closest("a")) return;
+
+      if (event.clientX < window.innerWidth / 2) {
+        show(index - 1);
+      } else {
+        show(index + 1);
+      }
     });
 
-    window.addEventListener('keydown', (event) => {
-      if (event.key === 'ArrowRight' || event.key === ' ') {
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight" || event.key === " ") {
         event.preventDefault();
         show(index + 1);
       }
-      if (event.key === 'ArrowLeft') show(index - 1);
+
+      if (event.key === "ArrowLeft") {
+        show(index - 1);
+      }
     });
   </script>
 </body>
