@@ -1,349 +1,168 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Chronological History Timeline</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="LARABRENNT portfolio">
+  <title>LARABRENNT</title>
+  <style>
+    :root {
+      --pad: clamp(16px, 2vw, 30px);
+      --header-height: 58px;
+      --ink: #111;
+      --paper: #f8f8f6;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    * { box-sizing: border-box; }
 
-<style>
-  :root {
-    --line: #202020;
-    --paper: #ffffff;
-    --muted: #626262;
-    --green: #198754;
-    --blue: #1769aa;
-    --red: #c62828;
-    --magenta: #a21caf;
-    --orange: #d96b00;
-  }
+    html, body { margin: 0; min-height: 100%; background: var(--paper); }
 
-  * { box-sizing: border-box; }
+    body {
+      overflow: hidden;
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      cursor: pointer;
+    }
 
-  html, body {
-    margin: 0;
-    background: var(--paper);
-    font-family: Arial, Helvetica, sans-serif;
-  }
+    .site-header {
+      position: fixed;
+      z-index: 10;
+      inset: 0 0 auto;
+      height: var(--header-height);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--pad);
+      pointer-events: none;
+      mix-blend-mode: difference;
+      color: white;
+    }
 
-  .timeline-shell {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding: 24px 0 14px;
-    scrollbar-color: #888 transparent;
-    scrollbar-width: thin;
-  }
+    .wordmark, .contact {
+      pointer-events: auto;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: -0.035em;
+      font-weight: 400;
+      text-decoration: none;
+      color: inherit;
+    }
 
-  .timeline {
-    position: relative;
-    min-width: 2200px;
-    padding: 35px 42px 42px;
-  }
+    .wordmark { font-size: clamp(13px, 1.25vw, 18px); }
 
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 18px;
-    margin: 0 0 28px;
-    font-size: 10pt;
-    font-weight: normal;
-    color: #202020;
-  }
+    .contact {
+      border-bottom: 1px solid currentColor;
+      padding-bottom: 2px;
+      transition: opacity 160ms ease;
+    }
 
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-  }
+    .contact:hover { opacity: .55; }
 
-  .legend-dot {
-    width: 10pt;
-    height: 10pt;
-    border-radius: 50%;
-    flex: 0 0 10pt;
-  }
+    .gallery {
+      width: 100vw;
+      height: 100svh;
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
-  .axis-wrap {
-    position: relative;
-    height: 570px;
-  }
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 550ms ease;
+      pointer-events: none;
+      background: var(--paper);
+    }
 
-  .axis {
-    position: absolute;
-    top: 250px;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: var(--line);
-  }
+    .slide.is-active { opacity: 1; pointer-events: auto; }
 
-  .tick {
-    position: absolute;
-    top: 242px;
-    width: 1px;
-    height: 17px;
-    background: var(--line);
-  }
+    .slide img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
 
-  .tick-label {
-    position: absolute;
-    top: 267px;
-    transform: translateX(-50%);
-    font-size: 9pt;
-    color: var(--muted);
-    white-space: nowrap;
-  }
+    .counter {
+      position: fixed;
+      z-index: 11;
+      right: var(--pad);
+      bottom: 18px;
+      color: white;
+      mix-blend-mode: difference;
+      font-size: 11px;
+      letter-spacing: -0.02em;
+      pointer-events: none;
+    }
 
-  .event {
-    position: absolute;
-    width: 190px;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10pt;
-    font-weight: normal;
-    line-height: 1.28;
-    text-align: left;
-  }
+    .hint {
+      position: fixed;
+      z-index: 11;
+      left: var(--pad);
+      bottom: 18px;
+      color: white;
+      mix-blend-mode: difference;
+      font-size: 11px;
+      pointer-events: none;
+      transition: opacity 300ms ease;
+    }
 
-  .event-marker {
-    position: absolute;
-    top: -5pt;
-    left: 0;
-    width: 10pt;
-    height: 10pt;
-    border-radius: 50%;
-    background: currentColor;
-    transform: translateX(-50%);
-  }
+    @media (max-width: 600px) {
+      :root { --header-height: 52px; }
+      .counter, .hint { bottom: 14px; }
+    }
 
-  .event-stem {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 1px;
-    background: currentColor;
-    opacity: 0.7;
-  }
-
-  .event-content {
-    position: absolute;
-    left: 0;
-    width: 190px;
-  }
-
-  .event-date {
-    margin-bottom: 4px;
-    font-size: 9pt;
-    color: #333;
-  }
-
-  .empty, .error {
-    padding: 24px 42px;
-    font: 10pt Arial, sans-serif;
-  }
-</style>
+    @media (prefers-reduced-motion: reduce) {
+      .slide { transition: none; }
+    }
+  </style>
 </head>
-
 <body>
-<div class="timeline-shell">
-  <div id="timeline" class="timeline">
-    <div class="empty">Loading timeline…</div>
-  </div>
-</div>
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="LARABRENNT home">LARABRENNT</a>
+    <!-- Replace the email address below with your own. -->
+    <a class="contact" href="mailto:hello@larabrennt.com">contact</a>
+  </header>
 
-<script>
-const EXCEL_FILE =
-  "Chronological-History-of-Franzosisch-Buchholz-the-Panke-and-Blankenburg.xlsx";
+  <main class="gallery" id="top" aria-label="Portfolio image carousel" tabindex="0">
+    <figure class="slide is-active"><img src="portfolio_Page_1.jpg" alt="Portfolio work 1"></figure>
+    <figure class="slide"><img src="portfolio_Page_2-2.jpg" alt="Portfolio work 2"></figure>
+    <figure class="slide"><img src="portfolio_Page_3-3.jpg" alt="Portfolio work 3"></figure>
+    <figure class="slide"><img src="portfolio_Page_4-4.jpg" alt="Portfolio work 4"></figure>
+    <figure class="slide"><img src="portfolio_Page_5-5.jpg" alt="Portfolio work 5"></figure>
+    <figure class="slide"><img src="portfolio_Page_6-6.jpg" alt="Portfolio work 6"></figure>
+    <figure class="slide"><img src="portfolio_Page_7-7.jpg" alt="Portfolio work 7"></figure>
+  </main>
 
-const themes = [
-  { column: "Date.1", color: "#198754", label: "Französisch Buchholz" },
-  { column: "Panke River", color: "#1769aa", label: "Panke River" },
-  { column: "Blankenburg", color: "#c62828", label: "Blankenburg" },
-  { column: "Kleingartenanlagen Development", color: "#a21caf", label: "Kleingartenanlagen Development" },
-  { column: "Railway", color: "#d96b00", label: "Railway" }
-];
+  <span class="hint" aria-hidden="true">click to browse</span>
+  <span class="counter" aria-live="polite"><span id="current">01</span> / 07</span>
 
-function clean(value) {
-  if (value === undefined || value === null) return "";
-  return String(value).replace(/\s+/g, " ").trim();
-}
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const gallery = document.querySelector('.gallery');
+    const current = document.querySelector('#current');
+    const hint = document.querySelector('.hint');
+    let index = 0;
 
-function parseYear(dateText) {
-  const text = clean(dateText);
-  if (!text) return null;
+    function show(next) {
+      slides[index].classList.remove('is-active');
+      index = (next + slides.length) % slides.length;
+      slides[index].classList.add('is-active');
+      current.textContent = String(index + 1).padStart(2, '0');
+      hint.style.opacity = '0';
+    }
 
-  const lower = text.toLowerCase();
-  const matches = [...text.matchAll(/(\d{1,5})\s*(bc|bce|ad|ce)?/gi)];
-
-  if (!matches.length) {
-    const century = lower.match(/(\d{1,2})(st|nd|rd|th)\s+century/);
-    if (century) return (Number(century[1]) - 1) * 100 + 50;
-    return null;
-  }
-
-  const values = matches.map(match => {
-    const number = Number(match[1]);
-    const era = (match[2] || "").toLowerCase();
-    return era === "bc" || era === "bce" ? -number : number;
-  });
-
-  if (lower.includes("before") && /bc|bce/.test(lower)) return -values[0];
-  if (lower.includes("until") && values.length) return values[0];
-  return Math.min(...values);
-}
-
-function createLegend() {
-  const legend = document.createElement("div");
-  legend.className = "legend";
-
-  themes.forEach(theme => {
-    const item = document.createElement("div");
-    item.className = "legend-item";
-
-    const dot = document.createElement("span");
-    dot.className = "legend-dot";
-    dot.style.background = theme.color;
-
-    const label = document.createElement("span");
-    label.textContent = theme.label;
-
-    item.append(dot, label);
-    legend.append(item);
-  });
-
-  return legend;
-}
-
-function renderTimeline(rows) {
-  const root = document.getElementById("timeline");
-  root.innerHTML = "";
-  root.append(createLegend());
-
-  const events = [];
-
-  rows.forEach((row, rowIndex) => {
-    const date = clean(row["Date"]);
-    const year = parseYear(date);
-
-    themes.forEach(theme => {
-      const text = clean(row[theme.column]);
-      if (text && year !== null) {
-        events.push({
-          date,
-          year,
-          text,
-          color: theme.color,
-          theme: theme.label,
-          rowIndex
-        });
-      }
-    });
-  });
-
-  if (!events.length) {
-    root.insertAdjacentHTML(
-      "beforeend",
-      '<div class="error">No dated events were found in the selected worksheet.</div>'
-    );
-    return;
-  }
-
-  const years = events.map(event => event.year);
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const range = Math.max(maxYear - minYear, 1);
-
-  const width = Math.max(2200, Math.ceil(range * 0.52 + 520));
-  root.style.minWidth = width + "px";
-
-  const axisWrap = document.createElement("div");
-  axisWrap.className = "axis-wrap";
-
-  const axis = document.createElement("div");
-  axis.className = "axis";
-  axisWrap.append(axis);
-
-  const leftPad = 10;
-  const usableWidth = width - 84;
-
-  const grouped = new Map();
-  events.forEach(event => {
-    const key = String(event.year);
-    if (!grouped.has(key)) grouped.set(key, []);
-    grouped.get(key).push(event);
-  });
-
-  const placedByPosition = new Map();
-
-  [...grouped.values()]
-    .sort((a, b) => a[0].year - b[0].year)
-    .forEach(group => {
-      const year = group[0].year;
-      const x = leftPad + ((year - minYear) / range) * usableWidth;
-      const stack = placedByPosition.get(year) || 0;
-
-      const tick = document.createElement("div");
-      tick.className = "tick";
-      tick.style.left = x + "px";
-      axisWrap.append(tick);
-
-      const tickLabel = document.createElement("div");
-      tickLabel.className = "tick-label";
-      tickLabel.style.left = x + "px";
-      tickLabel.textContent = group[0].date;
-      axisWrap.append(tickLabel);
-
-      group.forEach((event, index) => {
-        const level = stack + index;
-        const eventBox = document.createElement("article");
-        eventBox.className = "event";
-        eventBox.style.left = x + "px";
-        eventBox.style.top = (260 + 10 + level * 104) + "px";
-        eventBox.style.color = event.color;
-
-        const marker = document.createElement("span");
-        marker.className = "event-marker";
-
-        const stem = document.createElement("span");
-        stem.className = "event-stem";
-        stem.style.height = (10 + level * 104) + "px";
-
-        const content = document.createElement("div");
-        content.className = "event-content";
-        content.innerHTML =
-          '<div class="event-date">' + event.theme + '</div>' +
-          '<div>' + event.text + '</div>';
-
-        eventBox.append(marker, stem, content);
-        axisWrap.append(eventBox);
-      });
-
-      placedByPosition.set(year, stack + group.length);
+    gallery.addEventListener('click', (event) => {
+      if (event.target.closest('a')) return;
+      show(event.clientX < window.innerWidth / 2 ? index - 1 : index + 1);
     });
 
-  root.append(axisWrap);
-}
-
-fetch(EXCEL_FILE)
-  .then(response => {
-    if (!response.ok) throw new Error("Excel file could not be loaded.");
-    return response.arrayBuffer();
-  })
-  .then(buffer => {
-    const workbook = XLSX.read(buffer, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-    renderTimeline(rows);
-  })
-  .catch(error => {
-    document.getElementById("timeline").innerHTML =
-      '<div class="error">Timeline could not be loaded: ' +
-      error.message +
-      "</div>";
-  });
-</script>
+    window.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowRight' || event.key === ' ') show(index + 1);
+      if (event.key === 'ArrowLeft') show(index - 1);
+    });
+  </script>
 </body>
 </html>
